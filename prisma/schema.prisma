@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  name             String?
+  role             Role             @default(CUSTOMER)
+  phone            String?
+  address          String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  pets             Pet[]
+  bookings         Booking[]        @relation("CustomerBookings")
+  providerBookings Booking[]        @relation("ProviderBookings")
+  reviewsSent      Review[]         @relation("Reviewer")
+  providerProfile  ProviderProfile?
+}
+
+model Pet {
+  id       String    @id @default(cuid())
+  userId   String
+  name     String
+  type     String
+  breed    String?
+  age      Int?
+  notes    String?
+  user     User      @relation(fields: [userId], references: [id])
+  bookings Booking[]
+}
+
+model Service {
+  id          String            @id @default(cuid())
+  name        String
+  description String
+  basePrice   Decimal           @db.Decimal(10, 2)
+  durationMin Int
+  providers   ProviderProfile[]
+  bookings    Booking[]
+}
+
+model ProviderProfile {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  services     Service[]
+  availability Json?
+  hourlyRate   Decimal?  @db.Decimal(10, 2)
+  user         User      @relation(fields: [userId], references: [id])
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  customerId String
+  providerId String
+  petId      String
+  serviceId  String
+  date       DateTime
+  status     BookingStatus @default(PENDING)
+  totalPrice Decimal       @db.Decimal(10, 2)
+  notes      String?
+  customer   User          @relation("CustomerBookings", fields: [customerId], references: [id])
+  provider   User          @relation("ProviderBookings", fields: [providerId], references: [id])
+  pet        Pet           @relation(fields: [petId], references: [id])
+  service    Service       @relation(fields: [serviceId], references: [id])
+  reviews    Review[]
+  messages   Message[]
+}
+
+model Review {
+  id         String  @id @default(cuid())
+  bookingId  String
+  reviewerId String
+  rating     Int     @default(5)
+  comment    String?
+  booking    Booking @relation(fields: [bookingId], references: [id])
+  reviewer   User    @relation("Reviewer", fields: [reviewerId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  bookingId String
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
