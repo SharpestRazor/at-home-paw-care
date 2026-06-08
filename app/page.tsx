@@ -41,14 +41,14 @@ export default function Home() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {/* New Primary Button */}
-            <Link href="/book" className="inline-flex items-center justify-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium text-lg transition-all">
-              Book a Service Now
+            {/* Services Provided is now the primary button */}
+            <Link href="/services" className="inline-flex items-center justify-center px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium text-lg transition-all">
+              Services Provided
             </Link>
             
-            {/* Changed Button */}
-            <Link href="/services" className="inline-flex items-center justify-center px-8 py-4 border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium text-lg transition-all">
-              Services Provided
+            {/* Book a Service Now is now secondary */}
+            <Link href="/book" className="inline-flex items-center justify-center px-8 py-4 border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl font-medium text-lg transition-all">
+              Book a Service Now
             </Link>
           </div>
         </div>
