@@ -1,52 +1,72 @@
 'use client';
 
-import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
+import Link from 'next/link';
+import { PawPrint, ArrowLeft } from 'lucide-react';
 
 export default function BookPage() {
-  const { isSignedIn } = useUser();
-  const [selectedService, setSelectedService] = useState<string>('');
+  const { isSignedIn, isLoaded } = useUser();
 
-  if (!isSignedIn) {
-    return <div className="p-8 text-center">Please sign in to book a service.</div>;
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
   }
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-4xl font-bold mb-8">Book a Pet Service</h1>
-      
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 border">
-        <h2 className="text-2xl font-semibold mb-6">Available Services</h2>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          {[
-            { id: "grooming", name: "Grooming", price: "$45+" },
-            { id: "dogwalk", name: "Dog Walk", price: "$20" },
-            { id: "waste", name: "Pet Waste Disposal", price: "$20" },
-            { id: "transport", name: "Pet Transportation", price: "$10" },
-          ].map((service) => (
-            <div
-              key={service.id}
-              onClick={() => setSelectedService(service.id)}
-              className={`p-6 border-2 rounded-2xl cursor-pointer hover:border-emerald-600 transition-all ${
-                selectedService === service.id ? 'border-emerald-600 bg-emerald-50' : ''
-              }`}
-            >
-              <h3 className="text-xl font-semibold">{service.name}</h3>
-              <p className="text-2xl font-bold text-emerald-600 mt-2">{service.price}</p>
-              <p className="text-sm text-zinc-500 mt-4">Mobile service at your home</p>
-            </div>
-          ))}
-        </div>
-
-        {selectedService && (
-          <div className="mt-10 p-6 bg-emerald-50 dark:bg-emerald-950 rounded-2xl">
-            <p className="text-lg">✅ Service selected. Full booking form (date, pet, frequency) coming in next update.</p>
-            <button className="mt-6 px-8 py-4 bg-emerald-600 text-white rounded-xl font-medium">
-              Continue to Schedule
-            </button>
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center px-6">
+        <div className="max-w-md w-full text-center">
+          <div className="flex justify-center mb-6">
+            <PawPrint className="w-16 h-16 text-emerald-600" />
           </div>
-        )}
+          <h1 className="text-4xl font-bold mb-4">Welcome to At Home Paw Care</h1>
+          <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-8">
+            Sign in or create an account to book services for your pet.
+          </p>
+          
+          <SignInButton mode="modal">
+            <button className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium text-lg mb-4">
+              Sign In / Create Account
+            </button>
+          </SignInButton>
+
+          <Link href="/" className="inline-flex items-center gap-2 text-emerald-600 hover:underline">
+            <ArrowLeft className="w-4 h-4" /> Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Signed-in user sees booking interface
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <nav className="border-b bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <PawPrint className="w-8 h-8 text-emerald-600" />
+            <span className="font-bold text-2xl">At Home Paw Care</span>
+          </div>
+          <UserButton />
+        </div>
+      </nav>
+
+      <div className="max-w-4xl mx-auto p-6 pt-12">
+        <Link href="/" className="inline-flex items-center gap-2 text-emerald-600 hover:underline mb-8">
+          ← Back to Home
+        </Link>
+        
+        <h1 className="text-5xl font-bold mb-10">Book a Service</h1>
+        
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-10 border">
+          <p className="text-2xl font-medium mb-8">Service booking flow is ready.</p>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            You are signed in. Full booking form (select service, pet, date, frequency) coming soon.
+          </p>
+        </div>
       </div>
     </div>
   );
