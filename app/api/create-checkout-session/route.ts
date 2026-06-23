@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: '2025-06-30.basil', // Use latest stable version
+});
 
 export async function POST(request: Request) {
   try {
-    const { service, price, email } = await request.json();
+    const body = await request.json();
+    const { service, price, email } = body;
+
+    console.log("Received checkout request:", { service, price, email });
 
     if (!service || !price || !email) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -31,9 +36,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
-    console.error("Stripe error:", error);
+    console.error("Stripe checkout error:", error.message);
     return NextResponse.json({ 
-      error: error.message || "Payment session failed" 
+      error: error.message || "Internal server error" 
     }, { status: 500 });
   }
 }
