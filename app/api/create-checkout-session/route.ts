@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function POST(request: Request) {
   try {
@@ -7,12 +10,9 @@ export async function POST(request: Request) {
 
     console.log("Checkout request received:", { service, price, email: email ? email.substring(0, 5) + "..." : null });
 
-    if (!process.env.STRIPE_SECRET_KEY) {
-      console.error("STRIPE_SECRET_KEY is missing in environment variables");
-      return NextResponse.json({ error: "Stripe configuration error" }, { status: 500 });
+    if (!service || !price || !email) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
-
-    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -20,8 +20,8 @@ export async function POST(request: Request) {
         {
           price_data: {
             currency: 'usd',
-            product_data: { name: service || 'Service' },
-            unit_amount: Math.round((price || 0) * 100),
+            product_data: { name: service },
+            unit_amount: Math.round(price * 100),
           },
           quantity: 1,
         },
@@ -34,9 +34,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
-    console.error("Full checkout error:", error);
-    return NextResponse.json({ 
-      error: error.message || "Payment failed" 
-    }, { status: 500 });
+    console.error("Stripe checkout error:", error.message);
+    return NextResponse.json({ error: error.message || "Payment failed" }, { status: 500 });
   }
 }
