@@ -3,22 +3,61 @@
 import { useState } from 'react';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
-import { PawPrint, ArrowLeft, Calendar } from 'lucide-react';
-
-const services = [
-  { id: 'cleaning', name: 'Cleaning (Dog Bath)', basePrices: { small: 35, medium: 45, large: 50 } },
-  { id: 'dogwalk', name: 'Dog Walk', options: ['One-Time', 'Twice per week', 'Daily (5 days/week)'] },
-  { id: 'waste', name: 'Pet Waste Disposal', options: ['One-Time', 'Twice per week', 'Daily (5 days/week)'] },
-  { id: 'checkin', name: 'Check-In (Feeding & Love)', options: ['One-Time', 'Twice per week', 'Daily (5 days/week)'] },
-];
+import { PawPrint, ArrowLeft } from 'lucide-react';
 
 export default function BookPage() {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
   const [step, setStep] = useState(1);
   const [selectedService, setSelectedService] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedPrice, setSelectedPrice] = useState(0);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+
+  const services = [
+    { id: 'cleaning', name: 'Cleaning (Dog Bath)' },
+    { id: 'dogwalk', name: 'Dog Walk' },
+    { id: 'waste', name: 'Pet Waste Disposal' },
+    { id: 'checkin', name: 'Check-In (Feeding & Love)' },
+  ];
+
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const timeSlots = ['Morning (8-11am)', 'Lunch-time (11am-2pm)', 'Afternoon (2-6pm)'];
+
+  const handleFrequencySelect = (serviceId: string, option: string, price: number) => {
+    setSelectedService(serviceId);
+    setSelectedOption(option);
+    setSelectedPrice(price);
+    if (['waste', 'checkin'].includes(serviceId)) {
+      setStep(3);
+    } else {
+      setStep(4);
+    }
+  };
+
+  const createCheckout = async () => {
+    if (!selectedTimeSlot) {
+      alert("Please select a time slot");
+      return;
+    }
+
+    const response = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service: `${selectedOption} - ${selectedService}`,
+        price: selectedPrice + 10,
+        email: user?.emailAddresses[0]?.emailAddress,
+      }),
+    });
+
+    const { url } = await response.json();
+    if (url) {
+      window.location.href = url;
+    } else {
+      alert("Payment session failed. Please try again.");
+    }
+  };
 
   if (!isLoaded) return <div className="p-12 text-center">Loading...</div>;
 
@@ -28,10 +67,9 @@ export default function BookPage() {
         <div className="max-w-md text-center">
           <PawPrint className="w-20 h-20 mx-auto text-emerald-600 mb-6" />
           <h1 className="text-4xl font-bold mb-4">Book a Service</h1>
-          <p className="text-xl mb-8">Please sign in to continue booking</p>
           <SignInButton mode="modal">
             <button className="w-full py-4 bg-emerald-600 text-white rounded-2xl text-lg font-medium">
-              Sign In / Create Account
+              Sign In to Continue
             </button>
           </SignInButton>
         </div>
@@ -40,7 +78,7 @@ export default function BookPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-zinc-50">
       <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
@@ -52,9 +90,7 @@ export default function BookPage() {
       </nav>
 
       <div className="max-w-3xl mx-auto p-6 pt-12">
-        <Link href="/" className="inline-flex items-center gap-2 mb-8 text-emerald-600 hover:underline">
-          ← Back to Home
-        </Link>
+        <Link href="/" className="inline-flex items-center gap-2 mb-8 text-emerald-600">← Back to Home</Link>
 
         <h1 className="text-5xl font-bold mb-10">Book a Service</h1>
 
@@ -63,68 +99,107 @@ export default function BookPage() {
           <div>
             <h2 className="text-2xl font-semibold mb-6">What service do you need?</h2>
             <div className="grid gap-4">
-              {services.map((service) => (
+              {services.map((s) => (
                 <button
-                  key={service.id}
-                  onClick={() => {
-                    setSelectedService(service.id);
-                    setStep(2);
-                  }}
-                  className="p-6 text-left border-2 border-zinc-200 hover:border-emerald-600 rounded-3xl transition-all hover:shadow-md"
+                  key={s.id}
+                  onClick={() => { setSelectedService(s.id); setStep(2); }}
+                  className="p-6 text-left border-2 border-zinc-200 hover:border-emerald-600 rounded-3xl transition-all"
                 >
-                  <span className="text-2xl font-semibold">{service.name}</span>
+                  {s.name}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Step 2: Choose Details */}
+        {/* Step 2: Frequency / Size Selection */}
         {step === 2 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-6">Select Details for {services.find(s => s.id === selectedService)?.name}</h2>
+            <h2 className="text-2xl font-semibold mb-6">Choose Details</h2>
             
-            {/* Cleaning Size Selection */}
             {selectedService === 'cleaning' && (
-              <div className="space-y-4">
-                {['Under 30 lbs - $35', '30-100 lbs - $45', 'Over 100 lbs - $50'].map((option, i) => (
-                  <button key={i} onClick={() => { setSelectedOption(option); setStep(3); }} className="w-full p-6 text-left border rounded-3xl hover:border-emerald-600">
-                    {option}
+              <div className="grid gap-4">
+                {[
+                  { label: 'Under 30 lbs', price: 35 },
+                  { label: '30 - 100 lbs', price: 45 },
+                  { label: 'Over 100 lbs', price: 50 }
+                ].map((opt) => (
+                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600">
+                    {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
               </div>
             )}
 
-            {/* Other Services Frequency Selection */}
             {(selectedService === 'dogwalk' || selectedService === 'waste' || selectedService === 'checkin') && (
-              <div className="space-y-4">
-                {services.find(s => s.id === selectedService)?.options?.map((option, i) => (
-                  <button key={i} onClick={() => { setSelectedOption(option); setStep(3); }} className="w-full p-6 text-left border rounded-3xl hover:border-emerald-600">
-                    {option}
+              <div className="grid gap-4">
+                {[
+                  { label: 'One-Time', price: selectedService === 'checkin' ? 10 : 20 },
+                  { label: 'Twice per week', price: selectedService === 'checkin' ? 20 : 35 },
+                  { label: 'Daily (5 days/week)', price: selectedService === 'checkin' ? 30 : 50 }
+                ].map((opt) => (
+                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600">
+                    {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
               </div>
             )}
-
-            <button onClick={() => setStep(1)} className="mt-8 text-emerald-600">← Back</button>
           </div>
         )}
 
-        {/* Step 3: Date Selection (Simplified for MVP) */}
-        {step === 3 && (
+        {/* Step 3: Day Selection for Waste & Check-In */}
+        {step === 3 && (selectedService === 'waste' || selectedService === 'checkin') && (
           <div>
-            <h2 className="text-2xl font-semibold mb-6">When do you need the service?</h2>
-            <input 
-              type="date" 
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full p-4 border rounded-2xl text-lg"
-            />
-            <div className="mt-8 flex gap-4">
-              <button onClick={() => setStep(2)} className="flex-1 py-4 border rounded-2xl">Back</button>
-              <button onClick={() => alert('Booking submitted! (Demo)')} className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-medium">
-                Confirm Booking
-              </button>
+            <h2 className="text-2xl font-semibold mb-6">Select Days of the Week</h2>
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              {daysOfWeek.map((day) => (
+                <button
+                  key={day}
+                  onClick={() => {
+                    if (selectedDays.includes(day)) {
+                      setSelectedDays(selectedDays.filter(d => d !== day));
+                    } else {
+                      setSelectedDays([...selectedDays, day]);
+                    }
+                  }}
+                  className={`p-4 rounded-2xl border ${selectedDays.includes(day) ? 'bg-emerald-100 border-emerald-600' : 'border-zinc-200'}`}
+                >
+                  {day}
+                </button>
+              ))}
             </div>
+            <button 
+              onClick={() => setStep(4)} 
+              className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-medium" 
+              disabled={selectedDays.length === 0}
+            >
+              Continue to Time Slot
+            </button>
+          </div>
+        )}
+
+        {/* Step 4: Time Slot Selection */}
+        {step === 4 && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-6">Preferred Time Slot</h2>
+            <div className="grid gap-4 mb-8">
+              {timeSlots.map((slot) => (
+                <button
+                  key={slot}
+                  onClick={() => setSelectedTimeSlot(slot)}
+                  className={`p-6 text-left border-2 rounded-3xl transition-all ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-50' : 'border-zinc-200'}`}
+                >
+                  {slot}
+                </button>
+              ))}
+            </div>
+            <button 
+              onClick={createCheckout} 
+              className="w-full py-4 bg-emerald-600 text-white rounded-2xl text-lg font-medium"
+              disabled={!selectedTimeSlot}
+            >
+              Proceed to Payment — ${(selectedPrice + 10).toFixed(2)}
+            </button>
           </div>
         )}
       </div>
