@@ -110,7 +110,7 @@ export default function BookPage() {
                 <button
                   key={s.id}
                   onClick={() => { setSelectedService(s.id); setStep(2); }}
-                  className="w-full p-6 text-left border-2 border-zinc-300 hover:border-emerald-600 active:bg-emerald-50 rounded-3xl transition-all text-lg font-medium bg-white"
+                  className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow-sm"
                 >
                   {s.name}
                 </button>
@@ -119,11 +119,10 @@ export default function BookPage() {
           </div>
         )}
 
-        {/* Step 2 */}
+        {/* Other steps with similar strong styling */}
         {step === 2 && (
           <div>
             <h2 className="text-2xl font-semibold mb-6">Choose Details</h2>
-            
             {selectedService === 'cleaning' && (
               <div className="grid gap-4">
                 {[
@@ -131,7 +130,7 @@ export default function BookPage() {
                   { label: '30 - 100 lbs', price: 45 },
                   { label: 'Over 100 lbs', price: 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-300 hover:border-emerald-600 active:bg-emerald-50 rounded-3xl transition-all text-lg font-medium bg-white">
+                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow-sm">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -145,7 +144,7 @@ export default function BookPage() {
                   { label: 'Twice per week', price: selectedService === 'checkin' ? 20 : 35 },
                   { label: 'Daily (5 days/week)', price: selectedService === 'checkin' ? 30 : 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-300 hover:border-emerald-600 active:bg-emerald-50 rounded-3xl transition-all text-lg font-medium bg-white">
+                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow-sm">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -163,7 +162,7 @@ export default function BookPage() {
                 <button
                   key={slot}
                   onClick={() => setSelectedTimeSlot(slot)}
-                  className={`w-full p-6 text-left border-2 rounded-3xl transition-all text-lg font-medium ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-50' : 'border-zinc-300 hover:border-emerald-600 active:bg-emerald-50'}`}
+                  className={`w-full p-6 text-left border-2 rounded-3xl transition-all text-lg font-medium ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-100' : 'border-zinc-400 hover:border-emerald-600 active:bg-emerald-100'}`}
                 >
                   {slot}
                 </button>
@@ -171,7 +170,7 @@ export default function BookPage() {
             </div>
             <button 
               onClick={() => setStep(4)} 
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl font-medium" 
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl font-medium text-lg" 
               disabled={!selectedTimeSlot}
             >
               Continue to Date Selection
@@ -185,7 +184,7 @@ export default function BookPage() {
             <h2 className="text-2xl font-semibold mb-6">Select Preferred Date</h2>
             <input 
               type="date" 
-              className="w-full p-4 border rounded-2xl text-lg mb-8"
+              className="w-full p-4 border-2 border-zinc-400 rounded-2xl text-lg mb-8"
               onChange={(e) => setSelectedDate(e.target.value)}
             />
             <button 
@@ -201,9 +200,7 @@ export default function BookPage() {
         {/* Step 5: Confirmation */}
         {step === 5 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-8 flex items-center gap-3">
-              Confirm Your Booking
-            </h2>
+            <h2 className="text-2xl font-semibold mb-8">Confirm Your Booking</h2>
             
             <div className="bg-white p-8 rounded-3xl border space-y-6 mb-10">
               <div>
