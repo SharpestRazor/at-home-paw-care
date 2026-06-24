@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
-import { PawPrint, ArrowLeft, CheckCircle } from 'lucide-react';
+import { PawPrint, ArrowLeft } from 'lucide-react';
 
 export default function BookPage() {
   const { isSignedIn, isLoaded, user } = useUser();
@@ -14,13 +14,6 @@ export default function BookPage() {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-
-  const serviceNames: Record<string, string> = {
-    cleaning: 'Cleaning (Dog Bath)',
-    dogwalk: 'Dog Walk',
-    waste: 'Pet Waste Disposal',
-    checkin: 'Check-In (Feeding & Love)'
-  };
 
   const services = [
     { id: 'cleaning', name: 'Cleaning (Dog Bath)' },
@@ -40,12 +33,21 @@ export default function BookPage() {
   };
 
   const createCheckout = async () => {
+    if (!selectedDate) {
+      alert("Please select a date");
+      return;
+    }
+    if (!selectedTimeSlot) {
+      alert("Please select a time slot");
+      return;
+    }
+
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service: `${selectedOption} - ${serviceNames[selectedService]}`,
+          service: `${selectedOption} - ${selectedService}`,
           price: selectedPrice + 10,
           email: user?.emailAddresses[0]?.emailAddress,
         }),
@@ -73,7 +75,7 @@ export default function BookPage() {
           <PawPrint className="w-20 h-20 mx-auto text-emerald-600 mb-6" />
           <h1 className="text-4xl font-bold mb-4">Book a Service</h1>
           <SignInButton mode="modal">
-            <button className="w-full py-4 bg-emerald-600 text-white rounded-2xl text-lg font-medium">
+            <button className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-lg font-medium">
               Sign In to Continue
             </button>
           </SignInButton>
@@ -108,7 +110,7 @@ export default function BookPage() {
                 <button
                   key={s.id}
                   onClick={() => { setSelectedService(s.id); setStep(2); }}
-                  className="p-6 text-left border-2 border-zinc-200 hover:border-emerald-600 rounded-3xl transition-all hover:shadow-md"
+                  className="p-6 text-left border-2 border-zinc-200 hover:border-emerald-600 active:bg-emerald-50 rounded-3xl transition-all text-lg font-medium"
                 >
                   {s.name}
                 </button>
@@ -129,7 +131,7 @@ export default function BookPage() {
                   { label: '30 - 100 lbs', price: 45 },
                   { label: 'Over 100 lbs', price: 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600 hover:shadow-md">
+                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600 active:bg-emerald-50 text-lg font-medium">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -143,7 +145,7 @@ export default function BookPage() {
                   { label: 'Twice per week', price: selectedService === 'checkin' ? 20 : 35 },
                   { label: 'Daily (5 days/week)', price: selectedService === 'checkin' ? 30 : 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600 hover:shadow-md">
+                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600 active:bg-emerald-50 text-lg font-medium">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -161,7 +163,7 @@ export default function BookPage() {
                 <button
                   key={slot}
                   onClick={() => setSelectedTimeSlot(slot)}
-                  className={`p-6 text-left border-2 rounded-3xl transition-all ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-50' : 'border-zinc-200 hover:border-emerald-600'}`}
+                  className={`p-6 text-left border-2 rounded-3xl transition-all text-lg font-medium ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-50' : 'border-zinc-200 hover:border-emerald-600'}`}
                 >
                   {slot}
                 </button>
@@ -169,7 +171,7 @@ export default function BookPage() {
             </div>
             <button 
               onClick={() => setStep(4)} 
-              className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-medium" 
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium" 
               disabled={!selectedTimeSlot}
             >
               Continue to Date Selection
@@ -232,8 +234,6 @@ export default function BookPage() {
             >
               Confirm & Pay with Stripe
             </button>
-
-            <button onClick={() => setStep(4)} className="w-full mt-4 py-3 text-emerald-600">← Change Date</button>
           </div>
         )}
       </div>
