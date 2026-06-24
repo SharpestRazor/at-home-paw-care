@@ -110,7 +110,7 @@ export default function BookPage() {
                 <button
                   key={s.id}
                   onClick={() => { setSelectedService(s.id); setStep(2); }}
-                  className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow"
+                  style={{ border: '2px solid #10b981', color: '#10b981', backgroundColor: 'white', padding: '1.5rem', borderRadius: '1.5rem', width: '100%', textAlign: 'left', fontSize: '1.125rem', fontWeight: '600' }}
                 >
                   {s.name}
                 </button>
@@ -131,7 +131,7 @@ export default function BookPage() {
                   { label: '30 - 100 lbs', price: 45 },
                   { label: 'Over 100 lbs', price: 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow">
+                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} style={{ border: '2px solid #10b981', color: '#10b981', backgroundColor: 'white', padding: '1.5rem', borderRadius: '1.5rem', width: '100%', textAlign: 'left', fontSize: '1.125rem', fontWeight: '600' }}>
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -145,7 +145,7 @@ export default function BookPage() {
                   { label: 'Twice per week', price: selectedService === 'checkin' ? 20 : 35 },
                   { label: 'Daily (5 days/week)', price: selectedService === 'checkin' ? 30 : 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow">
+                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} style={{ border: '2px solid #10b981', color: '#10b981', backgroundColor: 'white', padding: '1.5rem', borderRadius: '1.5rem', width: '100%', textAlign: 'left', fontSize: '1.125rem', fontWeight: '600' }}>
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -163,7 +163,7 @@ export default function BookPage() {
                 <button
                   key={slot}
                   onClick={() => setSelectedTimeSlot(slot)}
-                  className={`w-full p-6 text-left border-2 rounded-3xl transition-all text-lg font-medium ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-100' : 'border-zinc-400 hover:border-emerald-600 active:bg-emerald-100'}`}
+                  style={{ border: selectedTimeSlot === slot ? '2px solid #10b981' : '2px solid #d1d5db', backgroundColor: selectedTimeSlot === slot ? '#ecfdf5' : 'white', padding: '1.5rem', borderRadius: '1.5rem', width: '100%', textAlign: 'left', fontSize: '1.125rem', fontWeight: '600', color: selectedTimeSlot === slot ? '#10b981' : '#374151' }}
                 >
                   {slot}
                 </button>
@@ -171,7 +171,7 @@ export default function BookPage() {
             </div>
             <button 
               onClick={() => setStep(4)} 
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl font-medium text-lg" 
+              style={{ backgroundColor: '#10b981', color: 'white', padding: '1rem', borderRadius: '1.5rem', width: '100%', fontSize: '1.125rem', fontWeight: '600' }}
               disabled={!selectedTimeSlot}
             >
               Continue to Date Selection
@@ -190,7 +190,7 @@ export default function BookPage() {
             />
             <button 
               onClick={() => setStep(5)} 
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl text-lg font-medium"
+              style={{ backgroundColor: '#10b981', color: 'white', padding: '1rem', borderRadius: '1.5rem', width: '100%', fontSize: '1.125rem', fontWeight: '600' }}
               disabled={!selectedDate}
             >
               Review & Pay
@@ -228,7 +228,7 @@ export default function BookPage() {
 
             <button 
               onClick={createCheckout} 
-              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-2xl text-lg font-medium"
+              style={{ backgroundColor: '#10b981', color: 'white', padding: '1rem', borderRadius: '1.5rem', width: '100%', fontSize: '1.125rem', fontWeight: '600' }}
             >
               Confirm & Pay with Stripe
             </button>
