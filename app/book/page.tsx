@@ -110,7 +110,7 @@ export default function BookPage() {
                 <button
                   key={s.id}
                   onClick={() => { setSelectedService(s.id); setStep(2); }}
-                  className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow-sm"
+                  className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow"
                 >
                   {s.name}
                 </button>
@@ -119,10 +119,11 @@ export default function BookPage() {
           </div>
         )}
 
-        {/* Other steps with similar strong styling */}
+        {/* Step 2 */}
         {step === 2 && (
           <div>
             <h2 className="text-2xl font-semibold mb-6">Choose Details</h2>
+            
             {selectedService === 'cleaning' && (
               <div className="grid gap-4">
                 {[
@@ -130,7 +131,7 @@ export default function BookPage() {
                   { label: '30 - 100 lbs', price: 45 },
                   { label: 'Over 100 lbs', price: 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow-sm">
+                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -144,7 +145,7 @@ export default function BookPage() {
                   { label: 'Twice per week', price: selectedService === 'checkin' ? 20 : 35 },
                   { label: 'Daily (5 days/week)', price: selectedService === 'checkin' ? 30 : 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow-sm">
+                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="w-full p-6 text-left border-2 border-zinc-400 hover:border-emerald-600 active:bg-emerald-100 rounded-3xl transition-all text-lg font-medium bg-white shadow">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
