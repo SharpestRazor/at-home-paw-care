@@ -66,14 +66,14 @@ export default function BookPage() {
     }
   };
 
-  if (!isLoaded) return <div className="p-12 text-center">Loading...</div>;
+  if (!isLoaded) return <div className="p-12 text-center text-black">Loading...</div>;
 
   if (!isSignedIn) {
     return (
       <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-6">
         <div className="max-w-md text-center">
           <PawPrint className="w-20 h-20 mx-auto text-emerald-600 mb-6" />
-          <h1 className="text-4xl font-bold mb-4">Book a Service</h1>
+          <h1 className="text-4xl font-bold mb-4 text-black">Book a Service</h1>
           <SignInButton mode="modal">
             <button className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-lg font-medium">
               Sign In to Continue
@@ -85,26 +85,26 @@ export default function BookPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen bg-zinc-50 text-black">
       <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <PawPrint className="w-8 h-8 text-emerald-600" />
-            <span className="font-bold text-2xl">At Home Paw Care</span>
+            <span className="font-bold text-2xl text-black">At Home Paw Care</span>
           </Link>
           <UserButton />
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto p-6 pt-12">
+      <div className="max-w-3xl mx-auto p-6 pt-12 text-black">
         <Link href="/" className="inline-flex items-center gap-2 mb-8 text-emerald-600 hover:underline">← Back to Home</Link>
 
-        <h1 className="text-5xl font-bold mb-10">Book a Service</h1>
+        <h1 className="text-5xl font-bold mb-10 text-black">Book a Service</h1>
 
         {/* Step 1 */}
         {step === 1 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-6">What service do you need?</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-black">What service do you need?</h2>
             <div className="grid gap-4">
               {services.map((s) => (
                 <button
@@ -122,7 +122,7 @@ export default function BookPage() {
         {/* Step 2 */}
         {step === 2 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-6">Choose Details</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-black">Choose Details</h2>
             
             {selectedService === 'cleaning' && (
               <div className="grid gap-4">
@@ -157,7 +157,7 @@ export default function BookPage() {
         {/* Step 3: Time Slot */}
         {step === 3 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-6">Preferred Time Slot</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-black">Preferred Time Slot</h2>
             <div className="grid gap-4 mb-8">
               {timeSlots.map((slot) => (
                 <button
@@ -182,7 +182,7 @@ export default function BookPage() {
         {/* Step 4: Calendar */}
         {step === 4 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-6">Select Preferred Date</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-black">Select Preferred Date</h2>
             <input 
               type="date" 
               className="w-full p-4 border-2 border-zinc-400 rounded-2xl text-lg mb-8"
@@ -201,24 +201,24 @@ export default function BookPage() {
         {/* Step 5: Confirmation */}
         {step === 5 && (
           <div>
-            <h2 className="text-2xl font-semibold mb-8">Confirm Your Booking</h2>
+            <h2 className="text-2xl font-semibold mb-8 text-black">Confirm Your Booking</h2>
             
             <div className="bg-white p-8 rounded-3xl border space-y-6 mb-10">
               <div>
                 <p className="text-sm text-zinc-500">Service</p>
-                <p className="font-semibold">{serviceNames[selectedService]}</p>
+                <p className="font-semibold text-black">{serviceNames[selectedService]}</p>
               </div>
               <div>
                 <p className="text-sm text-zinc-500">Details</p>
-                <p className="font-semibold">{selectedOption}</p>
+                <p className="font-semibold text-black">{selectedOption}</p>
               </div>
               <div>
                 <p className="text-sm text-zinc-500">Time Slot</p>
-                <p className="font-semibold">{selectedTimeSlot}</p>
+                <p className="font-semibold text-black">{selectedTimeSlot}</p>
               </div>
               <div>
                 <p className="text-sm text-zinc-500">Date</p>
-                <p className="font-semibold">{selectedDate}</p>
+                <p className="font-semibold text-black">{selectedDate}</p>
               </div>
               <div className="pt-4 border-t">
                 <p className="text-sm text-zinc-500">Total (incl. visit fee)</p>
