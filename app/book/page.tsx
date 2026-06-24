@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
-import { PawPrint, ArrowLeft } from 'lucide-react';
+import { PawPrint, ArrowLeft, CheckCircle } from 'lucide-react';
 
 export default function BookPage() {
   const { isSignedIn, isLoaded, user } = useUser();
@@ -13,6 +13,14 @@ export default function BookPage() {
   const [selectedPrice, setSelectedPrice] = useState(0);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
+
+  const serviceNames: Record<string, string> = {
+    cleaning: 'Cleaning (Dog Bath)',
+    dogwalk: 'Dog Walk',
+    waste: 'Pet Waste Disposal',
+    checkin: 'Check-In (Feeding & Love)'
+  };
 
   const services = [
     { id: 'cleaning', name: 'Cleaning (Dog Bath)' },
@@ -28,34 +36,31 @@ export default function BookPage() {
     setSelectedService(serviceId);
     setSelectedOption(option);
     setSelectedPrice(price);
-    if (['waste', 'checkin'].includes(serviceId)) {
-      setStep(3);
-    } else {
-      setStep(4);
-    }
+    setStep(3);
   };
 
   const createCheckout = async () => {
-    if (!selectedTimeSlot) {
-      alert("Please select a time slot");
-      return;
-    }
+    try {
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service: `${selectedOption} - ${serviceNames[selectedService]}`,
+          price: selectedPrice + 10,
+          email: user?.emailAddresses[0]?.emailAddress,
+        }),
+      });
 
-    const response = await fetch('/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        service: `${selectedOption} - ${selectedService}`,
-        price: selectedPrice + 10,
-        email: user?.emailAddresses[0]?.emailAddress,
-      }),
-    });
+      const data = await response.json();
 
-    const { url } = await response.json();
-    if (url) {
-      window.location.href = url;
-    } else {
-      alert("Payment session failed. Please try again.");
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Payment session failed. Please try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again.");
     }
   };
 
@@ -90,11 +95,11 @@ export default function BookPage() {
       </nav>
 
       <div className="max-w-3xl mx-auto p-6 pt-12">
-        <Link href="/" className="inline-flex items-center gap-2 mb-8 text-emerald-600">← Back to Home</Link>
+        <Link href="/" className="inline-flex items-center gap-2 mb-8 text-emerald-600 hover:underline">← Back to Home</Link>
 
         <h1 className="text-5xl font-bold mb-10">Book a Service</h1>
 
-        {/* Step 1: Choose Service */}
+        {/* Step 1 */}
         {step === 1 && (
           <div>
             <h2 className="text-2xl font-semibold mb-6">What service do you need?</h2>
@@ -103,7 +108,7 @@ export default function BookPage() {
                 <button
                   key={s.id}
                   onClick={() => { setSelectedService(s.id); setStep(2); }}
-                  className="p-6 text-left border-2 border-zinc-200 hover:border-emerald-600 rounded-3xl transition-all"
+                  className="p-6 text-left border-2 border-zinc-200 hover:border-emerald-600 rounded-3xl transition-all hover:shadow-md"
                 >
                   {s.name}
                 </button>
@@ -112,7 +117,7 @@ export default function BookPage() {
           </div>
         )}
 
-        {/* Step 2: Frequency / Size Selection */}
+        {/* Step 2 */}
         {step === 2 && (
           <div>
             <h2 className="text-2xl font-semibold mb-6">Choose Details</h2>
@@ -124,7 +129,7 @@ export default function BookPage() {
                   { label: '30 - 100 lbs', price: 45 },
                   { label: 'Over 100 lbs', price: 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600">
+                  <button key={opt.label} onClick={() => handleFrequencySelect('cleaning', opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600 hover:shadow-md">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -138,7 +143,7 @@ export default function BookPage() {
                   { label: 'Twice per week', price: selectedService === 'checkin' ? 20 : 35 },
                   { label: 'Daily (5 days/week)', price: selectedService === 'checkin' ? 30 : 50 }
                 ].map((opt) => (
-                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600">
+                  <button key={opt.label} onClick={() => handleFrequencySelect(selectedService, opt.label, opt.price)} className="p-6 text-left border rounded-3xl hover:border-emerald-600 hover:shadow-md">
                     {opt.label} — ${opt.price} + $10 visit fee
                   </button>
                 ))}
@@ -147,39 +152,8 @@ export default function BookPage() {
           </div>
         )}
 
-        {/* Step 3: Day Selection for Waste & Check-In */}
-        {step === 3 && (selectedService === 'waste' || selectedService === 'checkin') && (
-          <div>
-            <h2 className="text-2xl font-semibold mb-6">Select Days of the Week</h2>
-            <div className="grid grid-cols-2 gap-3 mb-8">
-              {daysOfWeek.map((day) => (
-                <button
-                  key={day}
-                  onClick={() => {
-                    if (selectedDays.includes(day)) {
-                      setSelectedDays(selectedDays.filter(d => d !== day));
-                    } else {
-                      setSelectedDays([...selectedDays, day]);
-                    }
-                  }}
-                  className={`p-4 rounded-2xl border ${selectedDays.includes(day) ? 'bg-emerald-100 border-emerald-600' : 'border-zinc-200'}`}
-                >
-                  {day}
-                </button>
-              ))}
-            </div>
-            <button 
-              onClick={() => setStep(4)} 
-              className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-medium" 
-              disabled={selectedDays.length === 0}
-            >
-              Continue to Time Slot
-            </button>
-          </div>
-        )}
-
-        {/* Step 4: Time Slot Selection */}
-        {step === 4 && (
+        {/* Step 3: Time Slot */}
+        {step === 3 && (
           <div>
             <h2 className="text-2xl font-semibold mb-6">Preferred Time Slot</h2>
             <div className="grid gap-4 mb-8">
@@ -187,19 +161,79 @@ export default function BookPage() {
                 <button
                   key={slot}
                   onClick={() => setSelectedTimeSlot(slot)}
-                  className={`p-6 text-left border-2 rounded-3xl transition-all ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-50' : 'border-zinc-200'}`}
+                  className={`p-6 text-left border-2 rounded-3xl transition-all ${selectedTimeSlot === slot ? 'border-emerald-600 bg-emerald-50' : 'border-zinc-200 hover:border-emerald-600'}`}
                 >
                   {slot}
                 </button>
               ))}
             </div>
             <button 
-              onClick={createCheckout} 
-              className="w-full py-4 bg-emerald-600 text-white rounded-2xl text-lg font-medium"
+              onClick={() => setStep(4)} 
+              className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-medium" 
               disabled={!selectedTimeSlot}
             >
-              Proceed to Payment — ${(selectedPrice + 10).toFixed(2)}
+              Continue to Date Selection
             </button>
+          </div>
+        )}
+
+        {/* Step 4: Calendar */}
+        {step === 4 && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-6">Select Preferred Date</h2>
+            <input 
+              type="date" 
+              className="w-full p-4 border rounded-2xl text-lg mb-8"
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+            <button 
+              onClick={() => setStep(5)} 
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-lg font-medium"
+              disabled={!selectedDate}
+            >
+              Review & Pay
+            </button>
+          </div>
+        )}
+
+        {/* Step 5: Confirmation */}
+        {step === 5 && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-8 flex items-center gap-3">
+              <CheckCircle className="w-8 h-8 text-emerald-600" /> Confirm Your Booking
+            </h2>
+            
+            <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border space-y-6 mb-10">
+              <div>
+                <p className="text-sm text-zinc-500">Service</p>
+                <p className="font-semibold">{serviceNames[selectedService]}</p>
+              </div>
+              <div>
+                <p className="text-sm text-zinc-500">Details</p>
+                <p className="font-semibold">{selectedOption}</p>
+              </div>
+              <div>
+                <p className="text-sm text-zinc-500">Time Slot</p>
+                <p className="font-semibold">{selectedTimeSlot}</p>
+              </div>
+              <div>
+                <p className="text-sm text-zinc-500">Date</p>
+                <p className="font-semibold">{selectedDate}</p>
+              </div>
+              <div className="pt-4 border-t">
+                <p className="text-sm text-zinc-500">Total (incl. visit fee)</p>
+                <p className="text-3xl font-bold text-emerald-600">${(selectedPrice + 10).toFixed(2)}</p>
+              </div>
+            </div>
+
+            <button 
+              onClick={createCheckout} 
+              className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-lg font-medium"
+            >
+              Confirm & Pay with Stripe
+            </button>
+
+            <button onClick={() => setStep(4)} className="w-full mt-4 py-3 text-emerald-600">← Change Date</button>
           </div>
         )}
       </div>

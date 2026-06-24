@@ -1,9 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import { PawPrint } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ServicesPage() {
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [formData, setFormData] = useState({
+    petType: '',
+    location: '',
+    duration: '',
+    needs: ''
+  });
+
+  const handleSubmitQuote = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert("Quote request received! We'll contact you shortly with a custom quote.");
+    setShowQuoteModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <nav className="border-b bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50">
@@ -22,7 +37,7 @@ export default function ServicesPage() {
           <p className="text-xl text-zinc-600 dark:text-zinc-400">All services include a $10 Visit Fee</p>
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-16">
           {/* Cleaning */}
           <div>
             <h2 className="text-3xl font-semibold mb-6">Cleaning (Dog Bath)</h2>
@@ -114,12 +129,15 @@ export default function ServicesPage() {
           {/* Pet Sitting */}
           <div className="bg-white dark:bg-zinc-900 p-10 rounded-3xl border text-center">
             <h2 className="text-3xl font-semibold mb-4">Pet Sitting (In-Home or Approved Sitter)</h2>
-            <p className="text-xl text-zinc-600 dark:text-zinc-400">
+            <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-8">
               Custom quote based on pet type, location, duration, and specific needs.
             </p>
-            <Link href="/book" className="inline-block mt-8 px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium">
+            <button 
+              onClick={() => setShowQuoteModal(true)}
+              className="inline-block px-10 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium"
+            >
               Request a Quote
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -129,6 +147,50 @@ export default function ServicesPage() {
           </Link>
         </div>
       </div>
+
+      {/* Quote Modal */}
+      {showQuoteModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-6">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl max-w-md w-full p-8">
+            <h2 className="text-3xl font-bold mb-6">Pet Sitting Quote Request</h2>
+            
+            <form onSubmit={handleSubmitQuote} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Pet Type</label>
+                <input type="text" placeholder="e.g. Golden Retriever, Cat" className="w-full p-3 border rounded-2xl" required
+                  onChange={(e) => setFormData({...formData, petType: e.target.value})} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Location</label>
+                <select className="w-full p-3 border rounded-2xl" required
+                  onChange={(e) => setFormData({...formData, location: e.target.value})}>
+                  <option value="">Select...</option>
+                  <option value="My Home">My Home</option>
+                  <option value="Approved Sitter Home">Approved Sitter's Home</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Duration</label>
+                <input type="text" placeholder="e.g. 3 days, 1 week" className="w-full p-3 border rounded-2xl" required
+                  onChange={(e) => setFormData({...formData, duration: e.target.value})} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Specific Needs</label>
+                <textarea placeholder="Any special instructions..." className="w-full p-3 border rounded-2xl h-24" 
+                  onChange={(e) => setFormData({...formData, needs: e.target.value})} />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button type="button" onClick={() => setShowQuoteModal(false)} className="flex-1 py-3 border rounded-2xl">Cancel</button>
+                <button type="submit" className="flex-1 py-3 bg-emerald-600 text-white rounded-2xl">Submit Request</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
